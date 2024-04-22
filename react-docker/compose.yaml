@@ -1,0 +1,39 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+    depends_on:
+      - api
+    ports:
+      - 5173:5173
+    develop:
+      watch:
+        - path: ./frontend/package.json
+        - action: rebuild
+        - path: ./frontend/package-lock.json
+        - action: rebuild
+        - path: ./frontend
+        - target: /app
+        - action: sync
+  api:
+    build:
+      context: ./backend
+    depends_on: db
+    ports:
+      - 3000:3000
+    environment:
+      - DB_URI: http://db/user
+    develop:
+      watch:
+        - path: ./package.json
+          action: rebuild
+        - path: ./package-lock.json
+          action: rebuild
+        - path: /
+          target: /app
+          action: sync
+    volumes:
+      - .:/app
+      - /app/node_modules
